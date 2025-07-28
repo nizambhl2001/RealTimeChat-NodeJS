@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+<head>
+    <title>WeChat</title>
+    <link rel="shortcut icon" href="images/messages_512.webp">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url("./images/simages.jpg");
+            background-size:cover;
+        }
+
+        .main {
+            width: 23%;
+            margin: auto;
+            box-shadow: 0px 3px 7px -2px #161818, 2px 2px 20px 2px #ebe7e7;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .strong {
+            color: white;
+        }
+
+        strong {
+            color: white;
+        }
+
+        li {
+            color: black;
+        }
+
+        element.style {
+            color: #8a9293;
+        }
+
+        #divUser {
+            padding: 10px 8px;
+            background: rgb(87 87 203);
+        }
+
+        #messages {
+            height: 262px;
+            padding-left: 20px;
+            padding-top: 5px;
+        }
+
+        #dropContainer {
+            background: rgb(87 87 203);
+            height: 109px;
+        }
+
+        h5 {
+            color: white;
+            padding: 5px 13px;
+            font-size: 0.9rem;
+        }
+
+        #formFileUpload {
+            margin-top: -27PX;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            margin-bottom: 5px;
+        }
+
+        #fileInput {
+            color: white;
+            margin: 2px;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            border: none;
+            background-color: #e7e7e7;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        input#submit {
+            padding: 5px 18px;
+            border-radius: 4px;
+            border: none;
+            outline: none;
+        }
+
+        #formMessage {
+            margin: 2px;
+            display: flex;
+            align-items: stretch;
+            padding: 0 10px;
+        }
+
+        #user {
+            color: white;
+            font-weight: bold;
+        }
+
+        #m {
+            width: 100%;
+            border-radius: 4px 0px 0px 4px;
+            border-style: none;
+            padding: 10px 7px;
+            outline: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        button {
+            padding: 0 22px;
+            border-radius: 0px 4px 4px 0px;
+            border-style: none;
+            background: #33ff2f;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        @media (max-width: 1000px) {
+            .main {
+                width: 50%;
+            }
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="container">
+            <div id="divUser">
+                <strong class="strong">Welcome, </strong><span id="user"></span>
+            </div>
+            <div id="messages"></div>
+
+            <div id="dropContainer">
+                <h5>Drop File</h5>
+
+                <form id="formFileUpload">
+                    <input type="file" name="fileInput" id="fileInput" multiple>
+                    <input id="submit" type="submit" value="Upload">
+                </form>
+                <form action="" id="formMessage">
+                    <input id="m" autocomplete="off" placeholder="Aa..." /><button>Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+          dropContainer.ondragover = dropContainer.ondragenter = function(evt) {
+          evt.preventDefault();
+        };
+    dropContainer.ondrop = function(evt) {
+         fileInput.files = evt.dataTransfer.files;
+         const dT = new DataTransfer();
+          dT.items.add(evt.dataTransfer.files[0]);
+          fileInput.files = dT.files;
+          evt.preventDefault();
+        };
+    </script>
+</body>
+</html>
+
+<script>
+  $(function () {
+      var strUserInfo = sessionStorage.getItem('userInfo');
+      var oUserInfo = JSON.parse(strUserInfo);
+     if(oUserInfo===null){
+        window.location.replace("http://localhost:5050");
+      }
+      $('#user').text(oUserInfo.userId);
+      var socket = io();
+      $('#formMessage').submit(function(e) {
+          e.preventDefault(); // prevents page reloading
+          if($('#m').val()===null || $('#m').val() === ''){
+            alert('Type a word to send message');
+          }else{
+            var currentDateTime = new Date();
+            var newDateTime = currentDateTime.toLocaleDateString() + ' ' + currentDateTime.toLocaleTimeString();
+              var oMessage = {
+                  "userId": oUserInfo.userId,
+                  "message": $('#m').val(),
+                  "dateTime": newDateTime
+              };
+            socket.emit('chat message', oMessage );
+            $('#m').val('');
+            return false;
+          }
+      });
+     socket.on('chat message', function(msg){
+          var htmlElements ='<strong>'+ msg.userId+'</strong>: '+msg.message+'<br/><span style="color:#7f8680">'+msg.dateTime+'</span>';
+          $('#messages').append($('<li>').html(htmlElements));
+      });
+       $("#formFileUpload").submit(function(evt){
+        evt.preventDefault();
+        var formData = new FormData($(this)[0]);
+        var f =$('#fileInput').val();
+        if($('#fileInput').val()===''){
+          alert('Attach a file to upload');
+        }else{
+          $.ajax({
+            url: 'uploadfile',
+            type: 'POST',
+            data: formData,
+            async: false,
+            cache: false,
+            contentType: false,
+            enctype: 'multipart/form-data',
+            processData: false,
+            success: function (response) {
+              var res = JSON.parse(response);
+              var currentDateTime = new Date();
+              var newDateTime = currentDateTime.toLocaleDateString() + ' ' + currentDateTime.toLocaleTimeString();
+              var oMessage = { "userId":oUserInfo.userId, "message":'<a href="'+res.filePath+'" target="_blank">'+res.fileName+'</a>', "dateTime":newDateTime };
+              socket.emit('chat message', oMessage );
+              $('#fileInput').val('');
+            }
+          });
+          return false;
+        }
+      });
+  });
+</script>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+    <title>Sign Up</title>
+    <link rel="shortcut icon" href="images/messages_512.webp">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            font-family: 'Jost', sans-serif;
+            background-image: url("./images/signimg.webp");
+            background-position: center;
+            background-size: cover;
+        }
+
+        .main {
+            position: relative;
+            width: 350px;
+            height: 400px;
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signup {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        h2 {
+            font-size: 2em;
+            color: #fff;
+            text-align: center;
+        }
+        .inputbox {
+            position: relative;
+            margin: 30px 0;
+            width: 310px;
+            border-bottom: 2px solid #fff;
+        }
+
+            .inputbox label {
+                position: absolute;
+                top: 50%;
+                left: 5px;
+                transform: translateY(-50%);
+                color: #fff;
+                font-size: 1em;
+                pointer-events: none;
+                transition: .5s;
+            }
+
+        input:focus ~ label,
+        input:valid ~ label {
+            top: -5px;
+        }
+
+        .inputbox input {
+            width: 100%;
+            height: 50px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1em;
+            padding: 0 35px 0 5px;
+            color: #fff;
+        }
+
+        button {
+            width: 100%;
+            height: 40px;
+            border-radius: 40px;
+            background: #fff;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            
+        }
+            button:hover {
+                background-color: #059862;
+                transition: 0.5s;
+                color: white;
+            }
+       #chk {
+            display: none;
+        }
+        
+    </style>
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script>
+      $(function () {
+           $('#btnSignUp').click(function(){
+                  var oUserInfo = {
+                    "userId": $('#txtUser').val()
+                };
+              sessionStorage.setItem('userInfo', JSON.stringify(oUserInfo));
+              window.location.replace("http://localhost:5050/chat");
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="main">
+        <input type="checkbox" id="chk" aria-hidden="true">
+        <div class="divSignUp">
+            <form>
+                <h2>We Chat</h2>
+                <div class="inputbox">
+                    <input type="text" id="txtUser" name="txt" required>
+                    <label for="">User name</label>
+                </div>
+                <div class="inputbox">
+                    <input type="password" id="txtUser" name="pswd" required>
+                    <label for="">Password</label>
+                </div>
+                <button type="button" id="btnSignUp">Sign up</button>
+            </form>
+        </div>
+    </div>
+  
+
+</body>
+</html>
